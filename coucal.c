@@ -35,6 +35,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <assert.h>
 #include <stdarg.h>
+#include <inttypes.h>
 
 #include "coucal.h"
 
@@ -109,15 +110,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* 64-bit constant */
 #if (defined(WIN32))
 #define UINT_64_CONST(X) ((uint64_t) (X))
-#define UINT_64_FORMAT "I64d"
 #elif (defined(_LP64) || defined(__x86_64__) \
        || defined(__powerpc64__) || defined(__64BIT__))
 #define UINT_64_CONST(X) ((uint64_t) X##UL)
-#define UINT_64_FORMAT "ld"
 #else
 #define UINT_64_CONST(X) ((uint64_t) X##ULL)
-#define UINT_64_FORMAT "lld"
 #endif
+
+#define UINT_64_FORMAT PRIu64
 
 /** Hashtable. **/
 struct struct_coucal {
@@ -236,7 +236,7 @@ struct struct_coucal {
 #endif
 
 /* Logging level. */
-static void coucal_log(const coucal hashtable, coucal_loglevel level,
+static void coucal_log(coucal hashtable, coucal_loglevel level,
                         const char *format, va_list args);
 #define DECLARE_LOG_FUNCTION(NAME, LEVEL) \
 static void NAME(const coucal hashtable, const char *format, ...) \
@@ -247,14 +247,14 @@ static void NAME(const coucal hashtable, const char *format, ...) { \
   coucal_log(hashtable, LEVEL, format, args); \
   va_end(args); \
 }
-#if 0
+#if HDEBUG>=2
 /* Verbose. */
 DECLARE_LOG_FUNCTION(coucal_crit, coucal_log_critical)
 DECLARE_LOG_FUNCTION(coucal_warning, coucal_log_warning)
 DECLARE_LOG_FUNCTION(coucal_info, coucal_log_info)
 DECLARE_LOG_FUNCTION(coucal_debug, coucal_log_debug)
 DECLARE_LOG_FUNCTION(coucal_trace, coucal_log_trace)
-#elif 0
+#elif HDEBUG>=1
 /* Info. */
 DECLARE_LOG_FUNCTION(coucal_crit, coucal_log_critical)
 DECLARE_LOG_FUNCTION(coucal_warning, coucal_log_warning)
@@ -740,7 +740,7 @@ static void coucal_free_key(coucal hashtable, coucal_key name) {
 
 static INTHASH_INLINE size_t coucal_hash_to_pos_(size_t lg_size,
                                                  coucal_hashkey hash) {
-  const coucal_hashkey mask = POW2(lg_size) - 1;
+  const coucal_hashkey mask = (int)POW2(lg_size) - 1;
   return hash & mask;
 }
 
