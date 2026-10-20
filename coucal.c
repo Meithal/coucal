@@ -552,22 +552,22 @@ static void coucal_compact_pool(coucal hashtable, size_t capacity) {
       const char *const src = (S);                          \
       char *const dest =                                    \
         &hashtable->pool.buffer[hashtable->pool.size];      \
-      const size_t capacity = hashtable->pool.capacity;     \
+      const size_t capacity_ = hashtable->pool.capacity;     \
       char *const max_dest =                                \
-        &hashtable->pool.buffer[capacity];                  \
+        &hashtable->pool.buffer[capacity_];                  \
       /* copy string */                                     \
       coucal_assert(hashtable, dest < max_dest);           \
       dest[0] = src[0];                                     \
       {                                                     \
-        size_t i;                                           \
-        for(i = 1 ; src[i - 1] != '\0' ; i++) {             \
-          coucal_assert(hashtable, &dest[i] < max_dest);   \
-          dest[i] = src[i];                                 \
+        size_t i_;                                           \
+        for(i_ = 1 ; src[i_ - 1] != '\0' ; i_++) {             \
+          coucal_assert(hashtable, &dest[i_] < max_dest);   \
+          dest[i_] = src[i_];                                 \
         }                                                   \
         /* update pool size */                              \
-        hashtable->pool.size += i;                          \
+        hashtable->pool.size += i_;                          \
         coucal_assert(hashtable,                           \
-                       hashtable->pool.size <= capacity);   \
+                       hashtable->pool.size <= capacity_);   \
       }                                                     \
       /* update source */                                   \
       S = dest;                                             \
@@ -910,7 +910,7 @@ static int coucal_add_item_(coucal hashtable, coucal_item item) {
 
   /* put 'item' in place with hash 'cuckoo_hash' */
   for(loops = POW2(hashtable->lg_size) ; loops != 0 ; --loops) {
-    const size_t pos = coucal_hash_to_pos(hashtable, cuckoo_hash);
+    pos = coucal_hash_to_pos(hashtable, cuckoo_hash);
 
     coucal_trace(hashtable,
                   "\tdebug:placing cuckoo '%s' at %"UINT_64_FORMAT" (%x)", 
@@ -978,39 +978,39 @@ static int coucal_add_item_(coucal hashtable, coucal_item item) {
       && hashtable->custom.print.value != NULL) {
       size_t i;
       for(i = 0 ; i < hashtable->stash.size ; i++) {
-        coucal_item *const item = &hashtable->stash.items[i];
-        const size_t pos1 = coucal_hash_to_pos(hashtable, item->hashes.hash1);
-        const size_t pos2 = coucal_hash_to_pos(hashtable, item->hashes.hash2);
-        coucal_crit(hashtable, 
+        coucal_item *const item_ = &hashtable->stash.items[i];
+        const size_t pos1 = coucal_hash_to_pos(hashtable, item_->hashes.hash1);
+        const size_t pos2 = coucal_hash_to_pos(hashtable, item_->hashes.hash2);
+        coucal_crit(hashtable,
           "stash[%u]: key='%s' value='%s' pos1=%d pos2=%d hash1=%04x hash2=%04x",
           (int) i,
-          hashtable->custom.print.key(hashtable->custom.print.arg, item->name),
-          hashtable->custom.print.value(hashtable->custom.print.arg, item->value),
+          hashtable->custom.print.key(hashtable->custom.print.arg, item_->name),
+          hashtable->custom.print.value(hashtable->custom.print.arg, item_->value),
           (int) pos1, (int) pos2,
-          item->hashes.hash1, item->hashes.hash2);
+          item_->hashes.hash1, item_->hashes.hash2);
         if (!coucal_is_free(hashtable, pos1)) {
-          coucal_item *const item = &hashtable->items[pos1];
-          const size_t pos1 = coucal_hash_to_pos(hashtable, item->hashes.hash1);
-          const size_t pos2 = coucal_hash_to_pos(hashtable, item->hashes.hash2);
-          coucal_crit(hashtable, 
+          coucal_item *const item__ = &hashtable->items[pos1];
+          const size_t pos1_ = coucal_hash_to_pos(hashtable, item__->hashes.hash1);
+          const size_t pos2_ = coucal_hash_to_pos(hashtable, item__->hashes.hash2);
+          coucal_crit(hashtable,
             "\t.. collisionning with key='%s' value='%s' pos1=%d pos2=%d hash1=%04x hash2=%04x",
-            hashtable->custom.print.key(hashtable->custom.print.arg, item->name),
-            hashtable->custom.print.value(hashtable->custom.print.arg, item->value),
-            (int) pos1, (int) pos2,
-            item->hashes.hash1, item->hashes.hash2);
+            hashtable->custom.print.key(hashtable->custom.print.arg, item__->name),
+            hashtable->custom.print.value(hashtable->custom.print.arg, item__->value),
+            (int) pos1_, (int) pos2_,
+            item__->hashes.hash1, item__->hashes.hash2);
         } else {
           coucal_crit(hashtable, "\t.. collisionning with a free slot (%d)!", (int) pos1);
         }
         if (!coucal_is_free(hashtable, pos2)) {
-          coucal_item *const item = &hashtable->items[pos2];
-          const size_t pos1 = coucal_hash_to_pos(hashtable, item->hashes.hash1);
-          const size_t pos2 = coucal_hash_to_pos(hashtable, item->hashes.hash2);
-          coucal_crit(hashtable, 
+          coucal_item *const item__ = &hashtable->items[pos2];
+          const size_t pos1_ = coucal_hash_to_pos(hashtable, item__->hashes.hash1);
+          const size_t pos2_ = coucal_hash_to_pos(hashtable, item__->hashes.hash2);
+          coucal_crit(hashtable,
             "\t.. collisionning with key='%s' value='%s' pos1=%d pos2=%d hash1=%04x hash2=%04x",
-            hashtable->custom.print.key(hashtable->custom.print.arg, item->name),
-            hashtable->custom.print.value(hashtable->custom.print.arg, item->value),
-            (int) pos1, (int) pos2,
-            item->hashes.hash1, item->hashes.hash2);
+            hashtable->custom.print.key(hashtable->custom.print.arg, item__->name),
+            hashtable->custom.print.value(hashtable->custom.print.arg, item__->value),
+            (int) pos1_, (int) pos2_,
+            item__->hashes.hash1, item__->hashes.hash2);
         } else {
           coucal_crit(hashtable, "\t.. collisionning with a free slot (%d)!", (int) pos2);
         }
@@ -1126,7 +1126,7 @@ int coucal_write_value(coucal hashtable, coucal_key_const name,
       /* attempt to merge the stash if present */
       if (hashtable->stash.size != 0) {
         const size_t old_size = hashtable->stash.size;
-        size_t i;
+        size_t i_;
 
         /* backup stash and reset it */
         coucal_item stash[STASH_SIZE];
@@ -1134,9 +1134,9 @@ int coucal_write_value(coucal hashtable, coucal_key_const name,
         hashtable->stash.size = 0;
 
         /* insert all items */
-        for(i = 0 ; i < old_size ; i++) {
-          const int ret = coucal_add_item_(hashtable, stash[i]);
-          if (ret == 0) {
+        for(i_ = 0 ; i_ < old_size ; i_++) {
+          const int ret_ = coucal_add_item_(hashtable, stash[i_]);
+          if (ret_ == 0) {
             coucal_assert(hashtable, ! "hashtable duplicate key when merging the stash");
           }
         }
