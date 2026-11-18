@@ -86,7 +86,6 @@ typedef unsigned __int64 uint64_t;
 #else
 #include <stdint.h>
 #endif
-#include <stdarg.h>
 
 /* External definitions */
 #ifndef COUCAL_EXTERN

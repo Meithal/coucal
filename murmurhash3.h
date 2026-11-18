@@ -43,7 +43,7 @@ static uint32_t fmix32 ( uint32_t h )
 #define BIG_CONSTANT(x) (x##LLU)
 static void MurmurHash3_x86_128 ( const void * key, const int len,
                                   uint32_t seed, void * out ) {
-  const uint8_t * data = (const uint8_t*)key;
+  const uint8_t * data = key;
   const int nblocks = len / 16;
 
   uint32_t h1 = seed;
@@ -84,7 +84,7 @@ static void MurmurHash3_x86_128 ( const void * key, const int len,
   }
 
   {
-  const uint8_t * tail = (const uint8_t*)(data + nblocks*16);
+  const uint8_t * tail = (data + nblocks*16);
 
   uint32_t k1 = 0;
   uint32_t k2 = 0;
@@ -115,7 +115,7 @@ static void MurmurHash3_x86_128 ( const void * key, const int len,
   case  2: k1 ^= tail[ 1] << 8;
   case  1: k1 ^= tail[ 0] << 0;
            k1 *= c1; k1  = ROTL32(k1,15); k1 *= c2; h1 ^= k1;
-  };
+  }
 
 
   h1 ^= len; h2 ^= len; h3 ^= len; h4 ^= len;

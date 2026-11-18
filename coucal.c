@@ -34,8 +34,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <stdarg.h>
 #include <inttypes.h>
+#include <stdarg.h>
 
 #include "coucal.h"
 
@@ -306,7 +306,7 @@ static void coucal_assert_failed(const coucal hashtable, const char* exp, const 
 
 /* Logging */
 static void coucal_log(const coucal hashtable, coucal_loglevel level,
-                       const char *format, va_list args) {
+                       const char *format, const va_list args) {
   coucal_assert(hashtable, format != NULL);
   if (hashtable != NULL && hashtable->custom.error.log != NULL) {
     hashtable->custom.error.log(hashtable->custom.error.arg, level, format, args);
@@ -320,7 +320,7 @@ static void coucal_log(const coucal hashtable, coucal_loglevel level,
 }
 
 /* No logging (should be dropped by the compiler) */
-static INTHASH_INLINE void coucal_nolog(const coucal hashtable, 
+static INTHASH_INLINE void coucal_nolog(const coucal hashtable,
                                         const char *format, ...)
                                         INTHASH_PRINTF_FUN(2, 3);
 static INTHASH_INLINE void coucal_nolog(const coucal hashtable, 
@@ -377,7 +377,7 @@ static void coucal_log_stats(coucal hashtable) {
 
 /* default hash function when key is a regular C-string */
 coucal_hashkeys coucal_hash_data(const void *data_, size_t size) {
-  const unsigned char *const data = (const unsigned char *) data_;
+  const unsigned char *const data = data_;
 #if (defined(HTS_INTHASH_USES_MD5) || defined(HTS_INTHASH_USES_OPENSSL_MD5))
   /* compute a regular MD5 and extract two 32-bit integers */
   HashMD5Context ctx;
@@ -494,7 +494,7 @@ static INTHASH_INLINE int coucal_equals(coucal hashtable,
                                         coucal_key_const a,
                                         coucal_key_const b) {
   return hashtable->custom.key.equals == NULL
-    ? strcmp((const char*) a, (const char*) b) == 0
+    ? strcmp(a, b) == 0
     : hashtable->custom.key.equals(hashtable->custom.key.arg, a, b);
 }
 
@@ -660,11 +660,11 @@ static void coucal_realloc_pool(coucal hashtable, size_t capacity) {
 
 static coucal_key coucal_dup_name_internal(coucal hashtable,
                                            coucal_key_const name_) {
-  const char *const name = (const char*) name_;
+  const char *const name = name_;
   const size_t len = strlen(name) + 1;
   char *s;
 
-  /* the pool does not allow empty strings for safety purpose ; handhe that
+  /* the pool does not allow empty strings for safety purpose ; handle that
     (keys are being emptied when free'd to detect duplicate free) */
   if (len == 1) {
     coucal_assert(hashtable, the_empty_string[0] == '\0');
@@ -1535,7 +1535,7 @@ struct_coucal_enum coucal_enum_new(coucal hashtable) {
 coucal_item *coucal_enum_next(struct_coucal_enum * e) {
   const size_t hash_size = POW2(e->table->lg_size);
   for( ; e->index < hash_size 
-    && coucal_is_free(e->table, e->index) ; e->index++) ;
+    && coucal_is_free(e->table, e->index) ; e->index++) {}
   /* enumerate all table */
   if (e->index < hash_size) {
     coucal_item *const next = &e->table->items[e->index];
